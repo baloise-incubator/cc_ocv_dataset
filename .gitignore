@@ -1,1 +1,4 @@
-background/**.jpg
+annotations.json
+background/*.jpg
+idcards/*.jpg
+images/
