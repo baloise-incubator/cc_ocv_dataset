@@ -9,18 +9,21 @@ import requests
 import os
 import random
 import json
+from datetime import date
+from skimage import measure  # (pip install scikit-image)
+from skimage import io
+from shapely.geometry import Polygon, MultiPolygon  # (pip install Shapely)
 
 
 def download_images(imglist):
     d = os.path.dirname(imglist)
     ret = []
-    idx = 0
+    
     for line in open(imglist, "r").readlines():
         url = line.strip()
         if url:
-            fn = os.path.join(d, str(idx) + ".jpg")
+            fn = os.path.join(d, os.path.basename(url))
             ret.append(fn)
-            idx += 1
             if os.path.exists(fn):
                 print("Found", url)
                 continue
@@ -72,11 +75,6 @@ def gen_matrix(im, size_x_top, size_x_bottom, size_y_left, size_y_right):
     ]
     return find_coeffs(new, orig)
 
-
-import numpy as np  # (pip install numpy)
-from skimage import measure  # (pip install scikit-image)
-from skimage import io
-from shapely.geometry import Polygon, MultiPolygon  # (pip install Shapely)
 
 # c.f. https://www.immersivelimit.com/tutorials/create-coco-annotations-from-scratch/#previewing-coco-annotations
 def create_sub_mask_annotation(
@@ -180,18 +178,18 @@ class ImageGen:
 
 if __name__ == "__main__":
     bg_lst = download_images("background/images.txt")
-    id_lst = download_images("idcards/images.txt")
-    print("idcards =", len(id_lst), ", bgimages =", len(bg_lst))
+    card_lst = download_images("idcards/images.txt")
+    print("idcards =", len(card_lst), ", bgimages =", len(bg_lst))
 
     annotation_id = 1
     idx = 0
     images = list()
     annotations = list()
     for bg_img in bg_lst:
-        for id_img in id_lst:
+        for card_img in card_lst:
             image_path = os.path.join("images", str(idx) + ".jpg")
             mask_path = os.path.join("images", str(idx) + "_mask.png")
-            imggen = ImageGen(id_img, bg_img)
+            imggen = ImageGen(card_img, bg_img)
             imggen.generate_image(image_path)
             imggen.generate_mask(mask_path)
 
@@ -212,6 +210,21 @@ if __name__ == "__main__":
         "annotations": annotations,
         "categories": [
             {"supercategory": "card", "id": annotation_id, "name": "idcard"}
+        ],
+        "info": {
+            "description": "ID Card Dataset",
+            "url": "https://github.com/baloise-incubator/cc_ocv_dataset",
+            "version": "1.0",
+            "year": 2020,
+            "contributor": "Baloise",
+            "date_created": date.today().strftime("%Y/%m/%d"),
+        },
+        "licenses": [
+            {
+                "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/",
+                "id": 1,
+                "name": "Attribution-NonCommercial-ShareAlike License",
+            }
         ],
     }
 
