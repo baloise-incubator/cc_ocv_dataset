@@ -2,6 +2,7 @@
 
 import matplotlib.pyplot as plt
 import random
+import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import model_from_json
@@ -26,15 +27,17 @@ print("Loaded model from disk")
 
 imgpath = sys.argv[1]
 print("reading image", imgpath)
-x = np.array(imread(imgpath))
+img = imread(imgpath)
+img2 = tf.image.resize(img, (128, 128))
+x = np.array(img2)
 x = np.expand_dims(x, axis=0)
 predict = model.predict(x, verbose=1)
 
-predict = (predict > 0.5).astype(np.uint8)
+predict = (predict > 0.7).astype(np.uint8)
 
 imshow(np.squeeze(predict[0]))
 plt.show()
 
-imshow(imread(imgpath))
+imshow(img)
 plt.show()
 
