@@ -113,6 +113,7 @@ git clone https://github.com/baloise-incubator/cc_ocv_dataset.git
 cd cc_ocv_dataset
 pip install scikit-image
 pip install Shapely
+pip install tqdm
 ```
 
 Now you can edit the images and background Urls for your own purpose
@@ -275,10 +276,16 @@ time python model_main_tf2.py --model_dir=models/my_ssd_resnet_50_v1_fpn --pipel
 ```
 
 ### Watch tensorboard
+Do this in a separate windows
+
+```
+cd $HOME/Projects/tensorflow/usr/src/workspace/training_demo                                                                                                                                                       
+tensorboard --logdir=models/my_ssd_resnet_50_v1_fpn --bind_all
+```
 
 ### Export
 ```
 cd $HOME/Projects/tensorflow/usr/src/workspace/training_demo                                                                                                                                                       
 cp ../../models/research/object_detection/exporter_main_v2.py .
 python exporter_main_v2.py --input_type image_tensor --pipeline_config_path models/my_ssd_resnet_50_v1_fpn/pipeline.config  --trained_checkpoint_dir models/my_ssd_resnet_50_v1_fpn --output_directory exported-models/my_model
-python exporter_main_v2.py --input_type image_tensor --pipeline_config_path models/my_ssd_resnet_50_v1_fpn/pipeline.config  --trained_checkpoint_dir models/my_efficient_d1 --output_directory exported-models/my_model
+```
