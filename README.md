@@ -289,3 +289,10 @@ cd $HOME/Projects/tensorflow/usr/src/workspace/training_demo
 cp ../../models/research/object_detection/exporter_main_v2.py .
 python exporter_main_v2.py --input_type image_tensor --pipeline_config_path models/my_ssd_resnet_50_v1_fpn/pipeline.config  --trained_checkpoint_dir models/my_ssd_resnet_50_v1_fpn --output_directory exported-models/my_model
 ```
+
+### Create mobile JSON
+```
+pip install tensorflow-js
+cd $HOME/Projects/tensorflow/usr/src/workspace/training_demo
+tensorflowjs_converter --input_format=tf_saved_model --output_node_names='MobilenetV1/Predictions/Reshape_1' --saved_model_tags=serve     exported-models/my_model/saved_model exported-models/my_model/web_model
+```
