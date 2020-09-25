@@ -1,43 +1,49 @@
 #!/usr/bin/env python3
 
-import matplotlib.pyplot as plt
-import random
 import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.models import model_from_json
 import numpy as np
+from PIL import Image
 import os
 import sys
 from skimage.io import imread, imshow
+from tensorflow.keras.models import load_model
 
-# load json and create model
-json_file = open('model.json', 'r')
-model = json_file.read()
-json_file.close()
-model = model_from_json(model)
-# load weights into new model
-model.load_weights("model.h5")
+
+# load model
+model = load_model('model_with_weights.h5')
 print("Loaded model from disk")
- 
-# evaluate loaded model on test data
-#model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
-#score = model.evaluate(X, Y, verbose=0)
-#print("%s: %.2f%%" % (model.metrics_names[1], score[1]*100))
 
 imgpath = sys.argv[1]
 print("reading image", imgpath)
 img = imread(imgpath)
-img2 = tf.image.resize(img, (128, 128))
+img2 = tf.image.resize(img, (224, 224))
 x = np.array(img2)
 x = np.expand_dims(x, axis=0)
 predict = model.predict(x, verbose=1)
+predict = (predict > 0.5).astype(np.uint8)
+predict = np.squeeze(predict[0])
+print(predict.shape)
+print(predict)
 
-predict = (predict > 0.7).astype(np.uint8)
+image = Image.open(imgpath)
+mask = Image.fromarray(predict * 255, "L")
+mask = mask.resize(image.size)
 
-imshow(np.squeeze(predict[0]))
-plt.show()
+#translucent mask
+mask = mask.convert("RGBA")
+datas = mask.getdata()
+white = (255, 255, 255, 0)
+newData = []
+for item in datas:
+    if item[0] == 255 and item[1] == 255 and item[2] == 255:
+        newData.append((255, 255, 255, 0))
+    else:
+        newData.append(item)
+mask.putdata(newData)
+mask.show()
 
-imshow(img)
-plt.show()
-
+new_img = image.copy()
+new_img = new_img.convert("RGBA")
+new_img.paste(mask, (0, 0), mask)
+#new_img = new_img.convert("RGB")
+new_img.show()

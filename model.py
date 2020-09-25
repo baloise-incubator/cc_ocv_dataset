@@ -15,8 +15,8 @@ from skimage.io import imread, imshow
 
 # tf.enable_eager_execution()
 
-IMG_WIDTH = 128
-IMG_HEIGHT = 128
+IMG_WIDTH = 224
+IMG_HEIGHT = 224
 IMG_CHANNELS = 3
 
 DATA_PATH = "images"
@@ -128,18 +128,12 @@ results = model.fit(
     x_train,
     y_train,
     validation_split=0.1,
-    batch_size=64,
+    batch_size=16,
     epochs=20,
     callbacks=callbacks,
 )
 
 model.summary()
 
-# serialize model to JSON
-model_json = model.to_json()
-with open("model.json", "w") as json_file:
-    json_file.write(model_json)
-# serialize weights to HDF5
-model.save_weights("model.h5")
 model.save("model_with_weights.h5")
 print("Saved model to disk")
